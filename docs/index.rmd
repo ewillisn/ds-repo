@@ -12,7 +12,6 @@ output:
 ```{r setup, include=FALSE}
 library(tidyverse)
 mpg
-g=ggplot(data=mpg, aes(x=displ, y=hwy))
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
@@ -23,8 +22,8 @@ This is an R Markdown document. Markdown is a simple formatting syntax for autho
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
 scatterplot
-```{r cars}
-
+```{r cars, echo=FALSE}
+g=ggplot(data=mpg, aes(x=displ, y=hwy))
 g+geom_point()
 
 ```
@@ -42,4 +41,76 @@ plot(pressure)
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
 
 
-## I need color 
+## I need color
+
+```{r color}
+ggplot(data = mpg, aes(x = displ, y = hwy)) +
+    geom_point(aes(color = class))
+##ggplot - take my data. here is x and y axis. Then plus means display using points,
+#add on color
+```
+
+### `shape`: need a b&w figure
+
+Changed `color` to `shape`:
+
+```{r b/w, echo=FALSE}
+
+ggplot(data = mpg, aes(x = displ, y = hwy)) +
+    geom_point(aes(shape = class))
+
+```
+
+####What happens if you map an aesthetic to something other than a variable name, like aes(colour = displ < 5)?
+
+```{r exercise 5.5}
+ggplot(data = mpg, aes(x = displ, y = hwy, colour=displ<5)) +
+    geom_point()
+```
+
+##Geoms
+
+```{r geom examples}
+
+ggplot(mpg, aes(x=drv, y=hwy)) + geom_violin()
+#The violin plot is similar to box plots, except that they also show the probability density of the data at different values (in the simplest case this could be a histogram).
+ggplot(mpg, aes(x=drv, y=hwy)) + geom_jitter()
+#a useful way of handling overplotting caused by discreteness in smaller datasets.
+ggplot(mpg, aes(x=drv, y=hwy)) + geom_boxplot()
+
+
+
+```
+
+##Multiple Geoms
+```{r}
+ggplot(data=mpg) + geom_point(aes(x=displ, y=hwy)) + geom_smooth(aes(x=displ, y=hwy))
+```
+
+##Faceting
+Adding multiple plots on one screen
+ 
+```{r faceting}
+ggplot(data = mpg, aes(x = displ, y = hwy, color = class)) +
+     geom_point() +
+     facet_wrap(~ manufacturer) +
+     theme_bw()
+```
+
+
+##Customization
+
+change titles and axes, theme changed to black/white instead of grey, changing text size
+
+```{r customize}
+
+ggplot(data = mpg, aes(x = displ, y = hwy)) + 
+  geom_point(aes(color = class)) + 
+  geom_smooth() +
+  labs(title = "Relationship between engine size and mpg",
+         x = "Highway MPG",
+         y = "Engine displacement (liters)") +
+  theme(panel.grid.major=element_blank(), panel.grid.minor = element_blank(),  panel.background = element_blank(), axis.line=element_line(colour="black"), legend.key= element_rect(fill = "transparent", colour = "transparent")) +
+  theme(text=element_text(size = 16))
+```
+
