@@ -114,3 +114,57 @@ ggplot(data = mpg, aes(x = displ, y = hwy)) +
   theme(text=element_text(size = 16))
 ```
 
+
+##Exploring data with base R 
+
+How to read csv directly with git
+
+```{r base}
+gapminder <- read_csv("https://raw.githubusercontent.com/OHI-Science/data-science-training/master/data/gapminder.csv")
+
+gapminder
+
+##useful functions to get to know your data:
+head(gapminder) #shows the first 6 rows of the data
+tail(gapminder) #shows the last 6 rows of the data
+
+str(gapminder) #check out the structure of your data
+names(gapminder) #return column headers
+dim(gapminder) #dimensions of dataset
+ncol(gapminder)
+nrow(gapminder)
+c(nrow(gapminder), ncol(gapminder)) #reverse engineer dim
+summary(gapminder)
+
+#for everything above, we were operating on the whole gapminder dataset. Use $ to subset rows 
+
+
+```
+
+'read_csv' from 'readr' package (part of the tidyverse). It is not 'read.csv' which is part of base R. 
+
+#Data Wrangling with 'dplyr'
+
+1. filter() - subset observations (rows)
+2. select() - subset variables (columns)
+3. mutate() -  create new variables (new col) with functions of existing variables (col)
+4. arrange() - reorder the rows 
+
+
+```{r dplyr practice}
+filter(gapminder, lifeExp <29)
+filter(gapminder, country == "Mexico")
+
+```
+###What is the mean life expectancy of Sweden? Hint: do this in 2 steps by assigning a variable and then using the mean() function.
+ `mean(filter(gapminder, country=="Sweden")$lifeExp)`
+ 
+##pipe operator '%>%' (control +shift+M)
+ 
+```{r}
+gapminder %>% head()
+
+#created a col called mean_lifeExp because dplyr always gives you dataframe back
+gapminder %>% filter(country=="Sweden") %>% summarize(mean_lifeExp=mean(lifeExp))
+```
+
