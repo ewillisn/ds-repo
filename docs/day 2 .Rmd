@@ -1,0 +1,124 @@
+---
+title: "Day 2"
+author: "Ellen"
+date: "12/1/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Tidyr 
+Making long data wide, and wide data long 
+```{r, include=FALSE}
+library(tidyverse)
+```
+
+##Example Datasets
+```{r example}
+gap_wide <- readr::read_csv("https://raw.githubusercontent.com/OHI-Science/data-science-training/master/data/gapminder_wide.csv")
+
+
+##yesterdays gapminder data
+gapminder <- readr::read_csv('https://raw.githubusercontent.com/OHI-Science/data-science-training/master/data/gapminder.csv')
+
+head(gap_wide)
+head(gapminder)
+
+```
+##gather()
+
+Use gather to turn 'gap_wide' into a long format dataset
+Key and value. One column is the key and the other will be the value
+:: - telling R to use a package for a single function
+
+```{r gather}
+
+gap_long <- gap_wide %>% 
+  gather(key=obstype_year, value=obs_values)
+
+head(gap_long)
+tail(gap_long)
+
+##this is not what we want to do. Because want to keep those first two columns (continent and countr) and want other columns next to that 
+
+gap_long <- gap_wide %>% 
+  gather(key=obstype_year, value=obs_values, 
+         dplyr:: starts_with("pop"), 
+         dplyr::starts_with("lifeExp"), 
+         dplyr::starts_with("gdpPercap"))
+
+head(gap_long)
+```
+
+###Keep columns with '-' in gather()
+```{r better way to do it}
+
+gap_long <- gap_wide %>% 
+  gather(key=obstype_year,
+         value=obs_values, 
+  -continent, -country)
+head(gap_long)
+
+```
+
+###separate out the year
+```{r}
+gap_long <- gap_wide %>% 
+  gather(key=obstype_year,
+         value=obs_values, 
+  -continent, -country) %>% 
+  separate(obstype_year,
+           into=c("obs_type", "year"), sep="_",
+           convert=T)
+
+##convert=T turns year from a character into an integer
+
+head(gap_long)
+```
+
+##Plot long format data
+```{r plotting}
+life_df <- gap_long %>% 
+  filter(obs_type=="lifeExp",
+         continent=="Americas")
+
+head(life_df)
+
+ggplot(data=life_df, aes(x=year, y=obs_values, color=country)) + geom_line()
+
+```
+
+Using gap_long, calculate and plot the the mean life expectancy for each continent over time from 1982 to 2007. Give your plot a title and assign x and y labels. Hint: use the dplyr::group_by() and dplyr::summarize() functions.
+
+```{r}
+
+life_df <- gap_long %>% 
+  filter(obs_type=="lifeExp") %>% 
+  filter(year %in% c(1982:2007))
+
+head(life_df)
+tail(life_df)
+
+group_example=life_df %>% 
+  dplyr:: group_by(continent, year) %>% 
+  dplyr:: summarize(mean=mean(obs_values)) 
+  
+
+ggplot(data=group_example, aes(x=year, y=mean, color=continent)) + geom_line() + theme_bw()
+```
+
+##spread()
+
+Getting the dataset back into the wide format to look like original gapminder 
+```{r}
+
+gap_normal <-  gap_long %>% 
+  spread(key=obs_type, value=obs_values)
+
+head(gap_normal)
+
+
+```
+
